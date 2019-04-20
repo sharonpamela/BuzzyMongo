@@ -6,7 +6,9 @@ let mongoose = require("mongoose");
 let db = require("./models");
 let axios = require("axios");
 let cheerio = require("cheerio");
-let port = 3000;
+
+let PORT = process.env.PORT || 3000;
+
 
 let express = require("express");
 let app = express();
@@ -26,7 +28,9 @@ app.use(express.json());
 
 app.use(express.static("public")); // make public a static folder so that it becomes the default route
 
-mongoose.connect("mongodb://localhost/scrapedquotes", { useNewUrlParser: true });
+let MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/scrapedquotes";
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+
 
 //routes
 
@@ -142,7 +146,7 @@ app.post("/quotes/:id", (req, res) => {
         .catch(err => { res.json(err) });
 })
 
-app.listen(port, function () {
-    console.log("app running on port " + port + "!");
+app.listen(PORT, function () {
+    console.log("app running on port " + PORT + "!");
 })
 
