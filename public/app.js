@@ -12,7 +12,6 @@ $(document).ready(function () {
     // $(document).on("click", ".btn.save", handleNoteSave);
     // $(document).on("click", ".btn.delete", handleQuoteDelete);
     // $(document).on("click", ".btn.notes", handleQuoteNotes);
-
     // $(document).on("click", ".btn.note-delete", handleNoteDelete);
     // $(".clear").on("click", handleQuoteClear);
 
@@ -107,73 +106,15 @@ $(document).ready(function () {
 
     function handleQuoteClear() {
 
-        // Remove card from page
-        $(this)
-            .parents(".card")
-            .remove();
-        // Using a delete method here just to be semantic since we are deleting an article/headline
+        // delele all of the quotes
         $.ajax({
             method: "DELETE",
-            url: "/api/headlines/" + articleToDelete._id
+            url: "/deleteAll/"
         }).then(function (data) {
-            // If this works out, run initPage again which will re-render our list of saved articles
-            if (data.ok) {
-                initPage();
-            }
+            
+            initPage();
+            
         });
 
     }
-
-
-    // $.getJSON("/quotes", function (data) {
-    //     for (var i = 0; i < data.length; i++) {
-    //         $("#quotes").append("<p data-id='" + data[i]._id + "'>" + data[i].quote + "</ p>");
-    //         // $("#quotes").append("<p data-id='" + data[i]._id + "'>" + data[i].quote + "<br />" + data[i].link + "</ p>");
-    //     }
-    // });
-
-    // $(document).on("click", "p", function () {
-
-    //     $("#notes").empty();
-    //     var thisId = $(this).attr("data-id");
-
-    //     // make ajax call for article
-    //     $.ajax({
-    //         method: "GET",
-    //         url: "/quotes/" + thisId
-    //     })
-    //         .then(function (data) {
-    //             console.log(data);
-    //             $("#notes").append("<h2>" + data.quote + "</h2>");
-    //             $("#notes").append("<input id='titleinput' name='title' >");
-    //             $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
-    //             $("#notes").append("<button data-id='" + data._id + "' id='savenote'> Save Note </button>");
-
-    //             if (data.note) {
-    //                 $("#titleinput").val(data.note.title);
-    //                 $("#bodyinput").val(data.note.body);
-    //             }
-    //         })
-    // });
-
-    // // when somenody clicks save note, it sends the title and body of the note to the back end
-    // $(document).on("click", "#savenote", function () {
-    //     let thisId = $(this).attr("data-id");
-
-    //     $.ajax({
-    //         method: "POST",
-    //         url: "/quotes/" + thisId,
-    //         data: {
-    //             title: $("#titleinput").val(),
-    //             body: $("#bodyinput").val()
-    //         }
-    //     })
-    //         .then(function (data) {
-    //             console.log(data);
-    //             console.log($("#notes").val());
-    //             $("#notes").empty();
-    //         });
-    //     $("#titleinput").val("");
-    //     $("#bodyinput").val("");
-    // });
 }) // end doc ready function

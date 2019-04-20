@@ -1,15 +1,24 @@
-let express = require("express");
+
+
 let logger = require("morgan");
 var mongojs = require("mongojs");
 let mongoose = require("mongoose");
 let db = require("./models");
 let axios = require("axios");
 let cheerio = require("cheerio");
-
 let port = 3000;
+
+let express = require("express");
 let app = express();
 
-app.use(logger("dev")); // use morgan logger for all requests
+
+// Set Handlebars.
+let exphbs = require("express-handlebars");
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+
+// use morgan logger for all requests
+app.use(logger("dev")); 
 
 // parse all responses as json
 app.use(express.urlencoded({ extended: true }));
@@ -64,14 +73,19 @@ app.get("/quotes", (req, res) => {
         .catch(err => { res.json(err) });
 });
 
-app.delete("/deleteAll", (req, res) => {
-    db.Quote.remove({})
-        .then(res.send("Delete all quotes Completed!"))
-        .catch(err => { res.json(err) });
-
-    db.Note.remove({})
-        .then(res.send("Delete all notes Completed!"))
-        .catch(err => { res.json(err) });
+app.delete("/deleteAll/", async (req, res) => {
+    
+    try {
+        const deleteQuotes = await db.Quote.deleteMany({});
+        const deleteNotes = await db.Note.deleteMany({});
+        console.log(deleteQuotes);
+        console.log(deleteNotes);
+        res.send("Deleted all entries.")
+    }
+    catch (err) {
+        res.json(err) 
+    }
+    
 });
 
 app.get("/quotes/:id", (req, res) => {
