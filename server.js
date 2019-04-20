@@ -1,5 +1,6 @@
 let express = require("express");
 let logger = require("morgan");
+var mongojs = require("mongojs");
 let mongoose = require("mongoose");
 let db = require("./models");
 let axios = require("axios");
@@ -18,13 +19,15 @@ app.use(express.static("public")); // make public a static folder so that it bec
 
 mongoose.connect("mongodb://localhost/scrapedquotes", { useNewUrlParser: true });
 
-//route
+//routes
+
+
 app.get("/scrape", function (req, res) {
     axios.get("https://www.goodreads.com/quotes/tag/inspiration")
         .then(function (response) {
             let $ = cheerio.load(response.data);
 
-            $(".quoteText").each( async function (i, element) {
+            $(".quoteText").each(async function (i, element) {
                 let result = {};
 
                 result.quote = $(this)
@@ -38,7 +41,7 @@ app.get("/scrape", function (req, res) {
                 try {
                     for (quote in result) {
                         const found = await db.Quote.find({ quote: result[quote] });
-                    
+
                         if (found.length === 0) {
                             const created = await db.Quote.create(result);
                             console.log(created);
@@ -53,9 +56,10 @@ app.get("/scrape", function (req, res) {
         });
 });
 
+// initPage() rendering already scraped quotes
 app.get("/quotes", (req, res) => {
-    // note this is using the model ref name 
-    db.Quote.find({})
+    // only render if they have saved:false flag
+    db.Quote.find({ saved: false })
         .then(dbQuote => { res.json(dbQuote) })
         .catch(err => { res.json(err) });
 });
@@ -75,6 +79,37 @@ app.get("/quotes/:id", (req, res) => {
         .populate("note")
         .then(dbArticle => { res.json(dbArticle) })
         .catch(err => { res.json(err) })
+});
+
+
+
+app.post("/update/:id", function (req, res) {
+    // When searching by an id, the id needs to be passed in
+    // as (mongojs.ObjectId(IdYouWantToFind))
+
+    // Update the note that matches the object id
+    db.Quote.update (
+        {
+            _id: mongojs.ObjectId(req.params.id)
+        },
+        {
+            // parameters to update
+            $set: { saved: true }
+        },
+        function (error, edited) {
+            // Log any errors from mongojs
+            if (error) {
+                console.log(error);
+                res.send(error);
+            }
+            else {
+                // Otherwise, send the mongojs response to the browser
+                // This will fire off the success function of the ajax request
+                console.log(edited);
+                res.send(edited);
+            }
+        }
+    );
 });
 
 // once a user post a new note
