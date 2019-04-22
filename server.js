@@ -1,5 +1,3 @@
-
-
 let logger = require("morgan");
 var mongojs = require("mongojs");
 let mongoose = require("mongoose");
@@ -32,30 +30,26 @@ let MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/scrapedquotes"
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 
+// routes
 
-// //routes
-app.get("/home", async (req, res) => {
-    // only render if they have saved:false flag
-
-    try{
+app.get("/", async (req, res) => {
+    try {
+        // render if they have saved:false flag
         const dbquotes = await db.Quote.find({ saved: false });
-        // res.json(dbQuote) 
         res.render("index", {dbquotes});
     } catch (err){
         res.json(err)
     }
-
-    // db.Quote.find({ saved: false })
-    //     .then(dbQuote => { res.json(dbQuote) })
-    //     .catch(err => { res.json(err) });
 });
 
-app.get("/saved", function (req, res) {
-    // the quotes with the saved:true flag
-    db.Quote.find({ saved: true })
-        .then(dbQuote => { res.json(dbQuote) })
-        .catch(err => { res.json(err) });
-
+app.get("/renderSaved", async (req, res) => {
+    try {
+        // render the quotes with the saved:true flag
+        const savedQuotes = await db.Quote.find({ saved: true });
+        res.render("saved",{savedQuotes});
+    } catch (err) {
+        res.json(err) 
+    }
 });
 
 app.get("/scrape", function (req, res) {
@@ -126,16 +120,12 @@ app.post("/quotes/:id", (req, res) => {
 })
 
 app.post("/update/:id", function (req, res) {
-    // When searching by an id, the id needs to be passed in
-    // as (mongojs.ObjectId(IdYouWantToFind))
-
     // Update the note that matches the object id
     db.Quote.update(
         {
             _id: mongojs.ObjectId(req.params.id)
         },
         {
-            // parameters to update
             $set: { saved: true }
         },
         function (error, edited) {
@@ -147,7 +137,6 @@ app.post("/update/:id", function (req, res) {
             else {
                 // Otherwise, send the mongojs response to the browser
                 // This will fire off the success function of the ajax request
-                console.log(edited);
                 res.send(edited);
             }
         }
