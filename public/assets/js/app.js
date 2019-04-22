@@ -1,5 +1,8 @@
 $(document).ready(function () {
 
+    //  todo:
+    // implement handlebars
+
 
     var quoteContainer = $(".quoteContainer");
 
@@ -10,10 +13,8 @@ $(document).ready(function () {
     $(document).on("click", ".delete", handleQuoteDelete); // remove single quote from saved
     $(document).on("click", ".notes", handleDisplayQuoteNotes); // display modal for notes 
     $(document).on("click", ".save", handleNoteSave); // save note btn inside modal 
+    $(document).on("click", ".note-delete", handleNoteDelete); // delete single note from quote notes
 
-
-    // $(document).on("click", ".btn.note-delete", handleNoteDelete);
-    // $(".clear").on("click", handleQuoteClear);
 
     // initialize the first time page loads
     $.get("/").then(function () {
@@ -189,14 +190,11 @@ $(document).ready(function () {
 
     async function handleDisplayQuoteNotes() {
         // This function handles opening the notes modal and prepping it up for showing notes
-        let noteId = $(this).attr("data-id");
+        const noteId = $(this).attr("data-id");
 
         try {
             // Grab any notes with this quote id
             const dbNoteData = await $.get("/api/notes/" + noteId);
-
-            console.log("this is db note data!")
-            console.log(dbNoteData);
 
             // Constructing our initial HTML to add to the notes modal
             var modalText = $("<div class='container-fluid text-center'>").append(
@@ -238,9 +236,6 @@ $(document).ready(function () {
         // Setting up an array of notes to render after finished
         // Also setting up a currentNote variable to temporarily store each note
 
-        console.log("rendering the previos notes");
-        console.log(data);
-
         var notesToRender = [];
         var currentNote;
         if (!data.notes.length) {
@@ -253,10 +248,9 @@ $(document).ready(function () {
                 // Constructs an li element to contain our noteText and a delete button
                 currentNote = $("<li class='list-group-item note'>")
                     .text(data.notes[i].noteText)
-                    .append($("<button class='btn btn-danger note-delete'>x</button>"));
-                // Store the note id on the delete button for easy access when trying to delete
-                currentNote.children("button").data("_id", data.notes[i]._id);
-                // Adding our currentNote to the notesToRender array
+                    // Store the note id on the delete button for easy access when trying to delete
+                    .append($(`<button class='btn btn-danger note-delete' data-id =${data.notes[i]._id} >x</button>`));
+                // Adding our current Note to the notesToRender array
                 notesToRender.push(currentNote);
             }
         }
@@ -275,15 +269,36 @@ $(document).ready(function () {
         // and post it to the "/api/notes" route and send the formatted noteData as well
         if (newNote) {
             noteData = { _quoteId: $(this).data("quote")._id, noteText: newNote };
-
-            const notePostResult = await $.post("/api/notes/", noteData);
+            try {
+                const notePostResult = await $.post("/api/notes/", noteData);
+            }
+            catch (err) {
+                console.log(err);
+            }
             // When complete, close the modal
-            // console.log(notePostResult);
             bootbox.hideAll();
 
         }
     }
 
+    async function handleNoteDelete() {
+        const id = $(this).attr("data-id");
 
+        // remove the note from the DB
+        try {
+            const notePostResult = await $.ajax({
+                method: "DELETE",
+                url: "/deleteOneNote/"+ id
+            });
 
+            // remove the note from the page (which includes the button)
+            $(this).parent().remove();
+
+            console.log(notePostResult);
+
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
 }) // end doc ready function

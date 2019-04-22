@@ -192,9 +192,21 @@ app.delete("/deleteAll/", async (req, res) => {
 app.delete("/deleteOne/:id", async (req, res) => {
 
     try {
-        const deleteQuote = await db.Quote.findOneAndRemove({ _id: req.params.id });
-        const deleteNotes = await db.Note.findOneAndRemove({ _id: req.params.id });
-        res.send("Deleted the note")
+        const deleteQuote = await db.Quote.findOneAndRemove({ _id: req.params.id }); // delete this quote
+        const deleteNotes = await db.Note.deleteMany({ _quoteId: req.params.id }); // delete all the notes that are associated with this quote
+        res.send("Deleted the quote")
+    }
+    catch (err) {
+        res.json(err)
+    }
+
+});
+
+app.delete("/deleteOneNote/:id", async (req, res) => {
+
+    try {
+        const deleteNote = await db.Note.deleteOne({ _id: req.params.id });
+        res.send(deleteNote);
     }
     catch (err) {
         res.json(err)
