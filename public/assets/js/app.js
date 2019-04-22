@@ -22,35 +22,35 @@ $(document).ready(function () {
     })
 
     // init home page
-    function initPage() {
-        // Empty the article container, run an AJAX request for any saved quotes
-        $.get("/saved").then(function (data) {
-            quoteContainer.empty();
-
-            // If we have quotes, render them to the page
-            if (data && data.length) {
-                savedRenderQuotes(data);
-            } else {
-                // Otherwise render a message explaining we have no quotes
-                savedRenderEmpty();
-            }
-        });
-    }
-
     // function initPage() {
     //     // Empty the article container, run an AJAX request for any saved quotes
-    //     $.get("/home").then(function (data) {
+    //     $.get("/saved").then(function (data) {
     //         quoteContainer.empty();
 
     //         // If we have quotes, render them to the page
     //         if (data && data.length) {
-    //             renderQuotes(data);
+    //             savedRenderQuotes(data);
     //         } else {
     //             // Otherwise render a message explaining we have no quotes
-    //             renderEmpty();
+    //             savedRenderEmpty();
     //         }
     //     });
     // }
+
+    function initPage() {
+        // Empty the article container, run an AJAX request for any saved quotes
+        $.get("/home").then(function (data) {
+            quoteContainer.empty();
+
+            // If we have quotes, render them to the page
+            if (data && data.length) {
+                renderQuotes(data);
+            } else {
+                // Otherwise render a message explaining we have no quotes
+                renderEmpty();
+            }
+        });
+    }
 
     //  ***** init home page helpers  *****
     function renderQuotes(quotes) {

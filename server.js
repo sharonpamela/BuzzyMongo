@@ -15,9 +15,9 @@ let app = express();
 
 
 // Set Handlebars.
-// let exphbs = require("express-handlebars");
-// app.engine("handlebars", exphbs({ defaultLayout: "main" }));
-// app.set("view engine", "handlebars");
+let exphbs = require("express-handlebars");
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
 // use morgan logger for all requests
 app.use(logger("dev"));
@@ -31,17 +31,23 @@ app.use(express.static("public")); // make public a static folder so that it bec
 let MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/scrapedquotes";
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
-app.listen(PORT, function () {
-    console.log("app running on port " + PORT + "!");
-})
 
 
 // //routes
-app.get("/home", (req, res) => {
+app.get("/home", async (req, res) => {
     // only render if they have saved:false flag
-    db.Quote.find({ saved: false })
-        .then(dbQuote => { res.json(dbQuote) })
-        .catch(err => { res.json(err) });
+
+    try{
+        const dbquotes = await db.Quote.find({ saved: false });
+        // res.json(dbQuote) 
+        res.render("index", {dbquotes});
+    } catch (err){
+        res.json(err)
+    }
+
+    // db.Quote.find({ saved: false })
+    //     .then(dbQuote => { res.json(dbQuote) })
+    //     .catch(err => { res.json(err) });
 });
 
 app.get("/saved", function (req, res) {
@@ -214,3 +220,6 @@ app.delete("/deleteOneNote/:id", async (req, res) => {
 
 });
 
+app.listen(PORT, function () {
+    console.log("app running on port " + PORT + "!");
+})
