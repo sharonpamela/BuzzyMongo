@@ -31,13 +31,12 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 
 // routes
-
 app.get("/", async (req, res) => {
     try {
         // render if they have saved:false flag
         const dbquotes = await db.Quote.find({ saved: false });
-        res.render("index", {dbquotes});
-    } catch (err){
+        res.render("index", { dbquotes });
+    } catch (err) {
         res.json(err)
     }
 });
@@ -46,50 +45,62 @@ app.get("/renderSaved", async (req, res) => {
     try {
         // render the quotes with the saved:true flag
         const savedQuotes = await db.Quote.find({ saved: true });
-        res.render("saved",{savedQuotes});
+        res.render("saved", { savedQuotes });
     } catch (err) {
-        res.json(err) 
+        res.json(err)
     }
 });
 
-app.get("/scrape", function (req, res) {
-    axios.get("https://www.goodreads.com/quotes/tag/inspiration")
-        .then(function (response) {
-            let $ = cheerio.load(response.data);
+app.get("/scrape", async (req, res) => {
 
-            $(".quoteText").each(async function (i, element) {
-                let result = {};
+    try {
+        const res = await axios.get("https://www.goodreads.com/quotes/tag/inspiration")
 
-                result.quote = $(this)
-                    .text()
-                    .split(",")
-                    .join()
-                    .trim();
+        let $ = cheerio.load(res.data);
 
-                // save to db ONLY if the quote is not a repeat
-                try {
-                    for (quote in result) {
-                        const found = await db.Quote.find({ quote: result[quote] });
+        $(".quoteText").each(async function (i, element) {
+            let result = {};
 
-                        if (found.length === 0) {
-                            const created = await db.Quote.create(result);
-                            console.log(created);
-                        }
+            result.quote = $(this)
+                .text()
+                .split(",")
+                .join()
+                .trim();
+
+            // save to db ONLY if the quote is not a repeat
+            try {
+                for (quote in result) {
+                    const found = await db.Quote.find({ quote: result[quote] });
+
+                    if (found.length === 0) {
+                        const created = await db.Quote.create(result);
+                        console.log(created);
                     }
                 }
-                catch (e) {
-                    console.log(e)
-                }
-            });
-            res.send("Scrape Completed!");
+            }
+            catch (e) {
+                console.log(e);
+            }
         });
+
+    } catch (e) {
+        console.log(e);
+    }
+    res.send("Scrape Completed!");
+
 });
 
-app.get("/quotes/:id", (req, res) => {
-    db.Quote.findOne({ _id: req.params.id })
-        .populate("note")
-        .then(dbQuote => { res.json(dbQuote) })
-        .catch(err => { res.json(err) })
+app.get("/quotes/:id", async (req, res) => {
+    try {
+        await db.Quote
+            .findOne({ _id: req.params.id })
+            .populate("note");
+
+        res.json(dbQuote);
+
+    } catch (err) {
+        res.json(err);
+    }
 });
 
 app.get("/api/notes/:id", async (req, res) => {
@@ -102,23 +113,26 @@ app.get("/api/notes/:id", async (req, res) => {
     }
 });
 
-app.post("/quotes/:id", (req, res) => {
+app.post("/quotes/:id", async (req, res) => {
     // once a user post a new note
     // this creates a new note in the Notes DB
     // the ArticleSchema has a note property that associates the id of the note to the article it
     // was posted on.
-    db.Note.create(req.body)
-        .then(dbNote => {
-            db.Quote.findOneAndUpdate(
-                { _id: req.params.id }, // id of article
-                { note: dbNote._id }, // id of article's notes 
-                { new: true })
-        })
-        .then(dbArticle => { res.json(dbArticle) })
-        .catch(err => { res.json(err) });
+    try {
+        const dbNote = await db.Note.create(req.body);
+        const updatedArticle = await db.Quote.findOneAndUpdate(
+            { _id: req.params.id }, // id of article
+            { note: dbNote._id }, // id of article's notes 
+            { new: true }); // necesary to tell mongoose to use updated value
+        res.json(updatedArticle);
+
+    } catch (err) {
+        res.json(err);
+    }
+
 })
 
-app.post("/update/:id", function (req, res) {
+app.post("/update/:id", (req, res) => {
     // Update the note that matches the object id
     db.Quote.update(
         {
@@ -128,14 +142,10 @@ app.post("/update/:id", function (req, res) {
             $set: { saved: true }
         },
         function (error, edited) {
-            // Log any errors from mongojs
             if (error) {
-                console.log(error);
                 res.send(error);
             }
             else {
-                // Otherwise, send the mongojs response to the browser
-                // This will fire off the success function of the ajax request
                 res.send(edited);
             }
         }

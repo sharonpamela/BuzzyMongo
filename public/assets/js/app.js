@@ -9,17 +9,17 @@ $(document).ready(function () {
     $(document).on("click", ".save", handleNoteSave); // save note btn inside modal 
     $(document).on("click", ".note-delete", handleNoteDelete); // delete single note from quote notes
 
-    async function handleQuoteScrape () {
+    async function handleQuoteScrape() {
         try {
             await $.ajax({
                 method: "GET",
                 url: "/scrape"
             })
-            
+
         } catch (err) {
             console.log(err);
         }
-        
+
         window.location.reload();
         window.location.reload();
     }
@@ -43,30 +43,30 @@ $(document).ready(function () {
     }
 
     async function handleQuoteClear() {
-
-        // delele all of the quotes
-        $.ajax({
-            method: "DELETE",
-            url: "/deleteAll/"
-        }).then(function (data) {
-
-            window.location.reload();
-            // renderPage("/");
-
-        });
-
+        try {
+            // delele all of the quotes
+            $.ajax({
+                method: "DELETE",
+                url: "/deleteAll/"
+            })
+        } catch (e) {
+            console.log(e);
+        }
+        window.location.reload();
     }
 
     async function handleQuoteDelete() {
 
         let thisId = $(this).attr("data-id");
-
-        await $.ajax({
-            method: "DELETE",
-            url: "/deleteOne/" + thisId
-        })
-        // initSavedPage();
-        // window.location.reload();
+        try {
+            await $.ajax({
+                method: "DELETE",
+                url: "/deleteOne/" + thisId
+            })
+        } catch (e) {
+            console.lof(e);
+        }
+        // remove card div
         $(this).parent().parent().remove();
     }
 
@@ -110,10 +110,9 @@ $(document).ready(function () {
         catch (err) {
             console.log(err);
         }
-
     }
 
-    function renderNotesList(data) {
+    function renderNotesList (data) {
         // This function handles rendering note list items to our notes modal
         // Setting up an array of notes to render after finished
         // Also setting up a currentNote variable to temporarily store each note
@@ -152,32 +151,28 @@ $(document).ready(function () {
         if (newNote) {
             noteData = { _quoteId: $(this).data("quote")._id, noteText: newNote };
             try {
-                const notePostResult = await $.post("/api/notes/", noteData);
+                await $.post("/api/notes/", noteData);
             }
             catch (err) {
                 console.log(err);
             }
             // When complete, close the modal
             bootbox.hideAll();
-
         }
     }
 
     async function handleNoteDelete() {
+        
         const id = $(this).attr("data-id");
-
-        // remove the note from the DB
         try {
-            const notePostResult = await $.ajax({
+            // remove the note from the DB
+            await $.ajax({
                 method: "DELETE",
                 url: "/deleteOneNote/" + id
             });
 
             // remove the note from the page (which includes the button)
             $(this).parent().remove();
-
-            console.log(notePostResult);
-
         }
         catch (err) {
             console.log(err);
