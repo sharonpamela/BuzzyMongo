@@ -1,5 +1,5 @@
 
-# All the News That's Fit to Scrape
+# Quotes Scraper for the Soul.
 
 ### Overview
 
