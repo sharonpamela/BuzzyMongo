@@ -26,29 +26,29 @@ https://quotescraperucb.herokuapp.com/
 
 ### Using the app
 
-Home page:
+#### Home page:
 
-Button 1: Get New Quotes!
+**Button 1:** Get New Quotes!
 This triggers the page to scrape quotes and then displays them on the page. A manual refresh may be needed sometimes to see the scraped quotes. 
 
-Button 2: Clear Quotes!
+**Button 2:** Clear Quotes!
 Empty the DB from all the quotes scraped. Deletes the saved quotes as well and all related comments users have done on the quotes. 
 
-Button 3: Save Quote
+**Button 3:** Save Quote
 Adds the relevant quote to the "saved" list for quick find and future review.
 
-Saved Quotes Page:
+#### Saved Quotes Page:
 
-Button 1: Clear Quotes!
+**Button 1:** Clear Quotes!
 Empty the DB from all the quotes scraped. Deletes the saved quotes and all related comments users have done on the quotes. 
 
-Button 2: Delete from Saved
+**Button 2:** Delete from Saved
 Deletes a single quote from the saved list (and DB).
 
-Button 3: Notes
+**Button 3:** Notes
 Triggers modal for users to leave a note. 
    
-   Notes' Modal:
+   *Notes' Modal:*
    - Displays all previous comments about this particular quote.
    - New Note text are allows users to enter a new note/comment. 
    - Save Note: saves the note/comment.
