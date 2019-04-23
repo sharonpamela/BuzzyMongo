@@ -64,7 +64,6 @@ app.get("/scrape", function (req, res) {
                     .text()
                     .split(",")
                     .join()
-                    // .replace(/[\\][n]*/gm," ")
                     .trim();
 
                 // save to db ONLY if the quote is not a repeat

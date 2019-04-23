@@ -1,11 +1,5 @@
 $(document).ready(function () {
 
-    //  todo:
-    // render Empty
-
-
-    var quoteContainer = $(".quoteContainer");
-
     // Adding event listeners for dynamically generated buttons
     $(document).on("click", ".quoteGet", handleQuoteScrape); // button: Get new Quotes!
     $(document).on("click", ".quoteSave", handleQuoteSave); // button: Save Quote
@@ -15,155 +9,40 @@ $(document).ready(function () {
     $(document).on("click", ".save", handleNoteSave); // save note btn inside modal 
     $(document).on("click", ".note-delete", handleNoteDelete); // delete single note from quote notes
 
-    // function to re-render the page when an event happens
-    function renderPage(page) {
-        $.get(page).then(function (data) {
-            // console.log("Done");
-        });
-    }
-
-
-    // function initSavedPage() {
-    //     // Empty the article container, run an AJAX request for any saved quotes
-    //     $.get("/renderSaved").then(function (data) {
-    //         quoteContainer.empty();
-
-    //         // If we have quotes, render them to the page
-    //         if (data && data.length) {
-    //             savedRenderQuotes(data);
-    //         } else {
-    //             // Otherwise render a message explaining we have no quotes
-    //             savedRenderEmpty();
-    //         }
-    //     });
-    // }
-
-    // function initHomePage() {
-    //     // Empty the article container, run an AJAX request for any saved quotes
-    //     $.get("/").then(function (data) {
-    //         quoteContainer.empty();
-
-    //         // If we have quotes, render them to the page
-    //         if (data && data.length) {
-    //             renderQuotes(data);
-    //         } else {
-    //             // Otherwise render a message explaining we have no quotes
-    //             renderEmpty();
-    //         }
-    //     });
-    // }
-
-    //  ***** init home page helpers  *****
-    // function renderQuotes(quotes) {
-    //     var quoteCards = [];
-    //     // We pass each quote JSON object to the createCard function which returns a bootstrap card with our quote data inside
-    //     for (var i = 0; i < quotes.length; i++) {
-    //         quoteCards.push(createCard(quotes[i]));
-    //     }
-    //     quoteContainer.append(quoteCards);
-    // }
-
-    // function createCard(quote) {
-    //     // This function takes in a single JSON object for a quote
-    //     // Constructs a jQuery element containing all of the formatted HTML for the quote card
-    //     var card = $("<div class='card cardStyle'>");
-    //     var cardHeader = $("<div class='card-header'>").append(
-    //         $("<h3>").append(
-    //             $(`<a class="btn btn-success btn-sm btnCard quoteSave" data-id='${quote._id}'>Save Quote</a>`)
-    //         )
-    //     );
-    //     var cardBody = $("<div class='card-body'>").text(quote.quote);
-    //     card.append(cardHeader, cardBody);
-    //     card.data("_id", quote._id);
-    //     return card;
-    // }
-
-    // function renderEmpty() {
-    //     // This function renders some HTML to the page explaining we don't have any articles to view
-    //     // Using a joined array of HTML string data because it's easier to read/change than a concatenated string
-    //     var emptyAlert = $(
-    //         [
-    //             "<div class='alert alert-warning text-center'>",
-    //             "<h4>Click on 'Get New Quotes!' to get started.</h4>",
-    //             "</div>"
-    //         ].join("")
-    //     );
-    //     // Appending this data to the page
-    //     quoteContainer.append(emptyAlert);
-    // }
-    //  ***** END: init home page helpers  *****
-
-
-    //  ***** init saved page helpers  *****
-    // function savedRenderQuotes(quotes) {
-    //     var quoteCards = [];
-    //     // We pass each quote JSON object to the createCard function which returns a bootstrap card with our quote data inside
-    //     for (var i = 0; i < quotes.length; i++) {
-    //         quoteCards.push(savedCreateCard(quotes[i]));
-    //     }
-    //     quoteContainer.append(quoteCards);
-    // }
-
-    // function savedCreateCard(quote) {
-    //     // This function takes in a single JSON object for a quote
-    //     // Constructs a jQuery element containing all of the formatted HTML for the quote card
-    //     var card = $("<div class='card cardStyle'>");
-    //     var cardHeader = $("<div class='card-header'>").append(
-    //         $("<h3>").append(
-    //             $(`<a class='btn btn-danger btnCard btn-sm delete' data-id='${quote._id}'>Delete From Saved</a>`),
-    //             $(`<a class='btn btn-info btnCard btn-sm notes' data-id='${quote._id}'>Notes</a>`)
-    //         )
-    //     );
-    //     var cardBody = $("<div class='card-body'>").text(quote.quote);
-    //     card.append(cardHeader, cardBody);
-    //     card.data("_id", quote._id);
-    //     return card;
-    // }
-
-    // function savedRenderEmpty() {
-    //     // This function renders some HTML to the page explaining we don't have any articles to view
-    //     // Using a joined array of HTML string data because it's easier to read/change than a concatenated string
-    //     var emptyAlert = $(
-    //         [
-    //             "<div class='alert alert-warning text-center'>",
-    //             "<h3>Oh oh ~There are no saved quotes at the moment.</h3>",
-    //             "<h4> Quotes can be saved from the <a href='/'>Home</a> page.</h4>",
-    //             "</div>"
-    //         ].join("")
-    //     );
-    //     // Appending this data to the page
-    //     quoteContainer.append(emptyAlert);
-    // }
-    //  ***** END: init saved page helpers  *****
-
-    function handleQuoteScrape() {
-        $.ajax({
-            method: "GET",
-            url: "/scrape"
-        })
-            .then(function (data) {
-                // render new quotes after fetching the quotes completes
-                window.location.reload();
-            });
+    async function handleQuoteScrape () {
+        try {
+            await $.ajax({
+                method: "GET",
+                url: "/scrape"
+            })
+            
+        } catch (err) {
+            console.log(err);
+        }
+        
+        window.location.reload();
+        window.location.reload();
     }
 
     async function handleQuoteSave() {
         let thisId = $(this).attr("data-id");
-        console.log("the ID is:", thisId);
-        // send saved quote to db
-        await $.ajax({
-            method: "POST",
-            url: "/update/" + thisId,
-            data: {
-                id: thisId
-            }
-        })
+        try {
+            // send saved quote to db
+            await $.ajax({
+                method: "POST",
+                url: "/update/" + thisId,
+                data: {
+                    id: thisId
+                }
+            })
+        } catch (err) {
+            console.log(err);
+        }
+        // remove card div
         $(this).parent().parent().remove();
-        // window.location.reload();
-        // renderPage("/");
     }
 
-    function handleQuoteClear() {
+    async function handleQuoteClear() {
 
         // delele all of the quotes
         $.ajax({

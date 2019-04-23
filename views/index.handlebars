@@ -4,7 +4,6 @@
 <div class="container-fluid quoteContainer">
   {{#each dbquotes}}
   {{#unless saved}}
-
   <div class="card cardStyle">
     <div class="card-header">
       <a class="btn btn-success btn-sm btnCard quoteSave" data-id={{_id}}>
@@ -15,7 +14,17 @@
       {{quote}}
     </div>
   </div>
-
   {{/unless}}
+
+  {{else}}
+  <br>
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">Oh oh! Looks like we need to scrape for new quotes!</h1>
+      <p class="lead">Click on 'Get New Quotes!' to get started.</p>
+    </div>
+  </div>
   {{/each}}
+
+
 </div>
